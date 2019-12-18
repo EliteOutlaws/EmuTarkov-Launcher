@@ -106,11 +106,12 @@
             // serverOutputRichBox
             // 
             this.serverOutputRichBox.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.serverOutputRichBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.serverOutputRichBox.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.serverOutputRichBox.ForeColor = System.Drawing.Color.Lime;
-            this.serverOutputRichBox.Location = new System.Drawing.Point(12, 162);
+            this.serverOutputRichBox.Location = new System.Drawing.Point(0, 162);
             this.serverOutputRichBox.Name = "serverOutputRichBox";
-            this.serverOutputRichBox.Size = new System.Drawing.Size(585, 202);
+            this.serverOutputRichBox.Size = new System.Drawing.Size(595, 200);
             this.serverOutputRichBox.TabIndex = 7;
             this.serverOutputRichBox.Text = "";
             // 
@@ -131,7 +132,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.ClientSize = new System.Drawing.Size(593, 162);
+            this.ClientSize = new System.Drawing.Size(584, 161);
             this.Controls.Add(this.backendUrlLabel);
             this.Controls.Add(this.serverOutputRichBox);
             this.Controls.Add(this.profileEditButton);
@@ -141,8 +142,8 @@
             this.Controls.Add(this.startButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(609, 377);
-            this.MinimumSize = new System.Drawing.Size(609, 162);
+            this.MaximumSize = new System.Drawing.Size(600, 400);
+            this.MinimumSize = new System.Drawing.Size(600, 160);
             this.Name = "MainWindow";
             this.ResumeLayout(false);
             this.PerformLayout();

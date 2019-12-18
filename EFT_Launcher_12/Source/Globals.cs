@@ -15,11 +15,11 @@ namespace EFT_Launcher_12
 		
 		static Globals()
 		{
-			serverFolder = Environment.CurrentDirectory;
-			profilesFolder = Path.Combine(Environment.CurrentDirectory, "appdata/profiles");
+			//serverFolder = Environment.CurrentDirectory;
+			//profilesFolder = Path.Combine(Environment.CurrentDirectory, "appdata/profiles");
 
-			//serverFolder = "Y:/tarkov/EmuTarkov Server dev";
-			//profilesFolder = "Y:/tarkov/EmuTarkov Server dev/appdata/profiles";
+			serverFolder = "Y:/tarkov/EmuTarkov Server dev";
+			profilesFolder = "Y:/tarkov/EmuTarkov Server dev/appdata/profiles";
 
 			gameFolder = Properties.Settings.Default.gameFolder;
 			version = "EmuTarkov Launcher 12";

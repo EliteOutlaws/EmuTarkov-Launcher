@@ -92,7 +92,8 @@ namespace EFT_Launcher_12
 
             try
             {
-                using (StreamWriter file = File.CreateText(profilePath))
+                //using (StreamWriter file = File.CreateText(profilePath))
+                using (StreamWriter file = File.CreateText(Environment.CurrentDirectory + "/testProfileSave.json"))
                 {
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Serialize(file, profileToEdit);

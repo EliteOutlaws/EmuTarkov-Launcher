@@ -160,7 +160,7 @@ namespace EFT_Launcher_12
 			if (Globals.launchServer)
 			{
 				// no need for this.member, we're accessing members inside the class
-				this.Height = 377;
+				this.Height = 400;
 				LaunchServer();
 			}
 
@@ -170,6 +170,7 @@ namespace EFT_Launcher_12
 			startGame.UseShellExecute = false;
 			startGame.WorkingDirectory = Globals.gameFolder;
 			Process.Start(startGame);
+			this.startButton.Enabled = false;
 		}
 
 		// package-private doesn't benefit from the optimizations that private has
@@ -189,7 +190,7 @@ namespace EFT_Launcher_12
 			proc.StartInfo.RedirectStandardError = true;
 			proc.StartInfo.RedirectStandardInput = true;
 			proc.StartInfo.RedirectStandardOutput = true;
-			proc.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
+			proc.StartInfo.StandardOutputEncoding = Encoding.UTF8;
 			proc.EnableRaisingEvents = true;
 			proc.Exited += ServerTerminated;
 
@@ -214,6 +215,7 @@ namespace EFT_Launcher_12
 		private void ServerTerminated(object sender, EventArgs e)
 		{
 			resetLauncherSize();
+			this.startButton.Enabled = true;
 		}
 
 		private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
@@ -226,10 +228,12 @@ namespace EFT_Launcher_12
 			string res = e.Data;
 			
 			// get line color here
-			
-			res = res.Replace(@"(\\e\[[0-1];3[0-9])m", ""); // it should replace all \e[0;32m things
-			res = res.Replace(@"\e[0;0m", "");
-			
+			if(res != null )
+			{
+				res = res.Replace(@"(\\e\[[0-1];3[0-9])m", ""); // it should replace all \e[0;32m things
+				res = res.Replace(@"\e[0;0m", "");
+			}
+
 			// make sure to modify this so it can handle colors!
 			SetConsoleOutputText(res + "\n");
 		}
@@ -264,11 +268,10 @@ namespace EFT_Launcher_12
 			}
 			else
 			{
-				this.Height = 162;
+				this.Height = 200;
 				serverOutputRichBox.Text = "";
 			}
 		}
-
 	}
 
 	internal class Profile
@@ -276,7 +279,7 @@ namespace EFT_Launcher_12
 		public string email;
 		public string password;
 		public int id;
-	}
+	} 
 
 	internal class LoginToken
 	{
