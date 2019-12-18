@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 
@@ -11,143 +10,29 @@ namespace EFT_Launcher_12
 {
 	public partial class MainWindow : Form
 	{
-		#region Window Form Handling
-		private Label minimise = new Label(); // minimize window
-	    //private Label maximise = new Label(); // we dont use maximize button - its useless in our case
-	    private Label close = new Label(); // close app
-		private bool drag = false; // Dragging form Flag
-	    private Point startPoint = new Point(0, 0); // Point value for dragging
-		#endregion
-		private LauncherConfig launcherConfig = new LauncherConfig();
+	
 		private Profile[] profiles = null;
 		private delegate void SetTextCallback(string text);
 		private delegate void ResetLauncherCallback();
 		private string serverProcessName;
-        #region controls drawing
-        private void formDrawing() {
-			// setup Minimize button
-			this.minimise.Text = "_";
-			this.minimise.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
-			this.minimise.TextAlign = ContentAlignment.MiddleCenter;
-			this.minimise.ForeColor = Color.Red;
-			this.minimise.BackColor = Color.Black;
-			this.minimise.BorderStyle = BorderStyle.FixedSingle;
-			this.minimise.Width = 20; // this is just to make it fit nicely
-			this.Controls.Add(this.minimise); // add it to the form's controls
-			this.minimise.BringToFront();
-			//setup maximize button
-			this.close.Text = "X";
-			this.close.TextAlign = ContentAlignment.MiddleCenter;
-			this.close.Location = new Point(this.Location.X + 26, this.Location.Y + 5);
-			this.close.BorderStyle = BorderStyle.FixedSingle;
-			this.close.ForeColor = Color.Red;
-			this.close.BackColor = Color.Black;
-			this.close.Width = 20; // this is just to make it fit nicely
-			this.Controls.Add(this.close);
-			this.close.BringToFront();
-			// add handlers to the events
-			this.minimise.MouseEnter += new EventHandler(Control_MouseEnter);
-			this.close.MouseEnter += new EventHandler(Control_MouseEnter);
-			this.minimise.MouseLeave += new EventHandler(Control_MouseLeave);
-			this.close.MouseLeave += new EventHandler(Control_MouseLeave);
-			this.minimise.MouseClick += new MouseEventHandler(Control_MouseClick);
-			this.close.MouseClick += new MouseEventHandler(Control_MouseClick);
-
-		}
-		#endregion
-		#region controls events
-		private void Control_MouseEnter(object sender, EventArgs e)
-		{
-			if (sender.Equals(this.close))
-				this.close.ForeColor = Color.White;
-			else // it's the minimise label
-				this.minimise.ForeColor = Color.White;
-		}
-		private void Control_MouseLeave(object sender, EventArgs e)
-		{
-			if (sender.Equals(this.close))
-				this.close.ForeColor = Color.Red;
-			else // it's the minimise label
-				this.minimise.ForeColor = Color.Red;
-		}
-		private void Control_MouseClick(object sender, MouseEventArgs e)
-	    {
-			if (sender.Equals(this.close))
-			{
-				killServer();
-				this.Close(); // close the form
-			}
-			else
-			{ // it's the minimise label
-				this.WindowState = FormWindowState.Minimized; // minimise the form
-			}
-	    }
-		void Title_MouseUp(object sender, MouseEventArgs e)
-	    {
-	        this.drag = false;
-	    }
-	    void Title_MouseDown(object sender, MouseEventArgs e)
-	    {
-			this.startPoint = e.Location;
-			this.drag = true;
-		}
-	    void Title_MouseMove(object sender, MouseEventArgs e)
-	    {
-	        if (this.drag)
-			{ // if we should be dragging it, we need to figure out some movement
-				Point p1 = new Point(e.X, e.Y);
-				Point p2 = this.PointToScreen(p1);
-				Point p3 = new Point(p2.X - this.startPoint.X, p2.Y - this.startPoint.Y);
-				this.Location = p3;
-			}
-	    }
-	#endregion
+        
 		public MainWindow()
 		{
-			formDrawing();
-
 			InitializeComponent();
 			this.FormClosing += MainWindow_FormClosing;
 			startButton.Enabled = false;
 			profileEditButton.Enabled = false;
 			profilesListBox.SelectedIndex = 0;
+			this.gamePathTextBox.Text = Globals.gameFolder;
+			LoadProfiles();
 
-			if (!File.Exists(Path.Combine(Globals.launcherFolder, "launcher.config.json")))
-			{
-				MessageBox.Show("unable to find launcher.config.json, creating one");
-				SaveLauncherSettings();
-			}
-			else
-			{
-				string json = File.ReadAllText(Path.Combine(Globals.launcherFolder, "launcher.config.json"));
-
-				launcherConfig = JsonConvert.DeserializeObject<LauncherConfig>(json);
-				gamePathTextBox.Text = launcherConfig.gamePath;
-				serverPathTextBox.Text = launcherConfig.serverPath;
-				backendUrlTextBox.Text = launcherConfig.backendUrl;
-				Globals.launchServer = launcherConfig.launchServer;
-				Globals.useServerPath = launcherConfig.useServerPath;
-			}
-		}
-
-		public void SaveLauncherSettings()
-		{
-			launcherConfig.gamePath = Globals.gameFolder;
-			launcherConfig.serverPath = Globals.serverFolder;
-			launcherConfig.backendUrl = backendUrlTextBox.Text;
-			launcherConfig.launchServer = Globals.launchServer;
-			launcherConfig.useServerPath = Globals.useServerPath;
-
-			string json = JsonConvert.SerializeObject(launcherConfig);
-
-			File.WriteAllText(Path.Combine(Globals.launcherFolder, "launcher.config.json"), json);
 		}
 
 		public void LoadProfiles()
 		{
 			if (!File.Exists(Path.Combine(Globals.profilesFolder, "list.json")))
 			{
-				MessageBox.Show("unable to find profile folder, make sure the server folder is set correctly");
+				MessageBox.Show("unable to find profile folder, make sure the launcher is in Emutarkov server folder");
 				return;
 			}
 
@@ -168,75 +53,38 @@ namespace EFT_Launcher_12
 		// we need to check absolutely everything.
 		// if there is one thing we learned from the 0.8.0-alpha,
 		// it's that people don't or can't read.
+		//baliston : people can read, they are just lazy as F, so make the launcher as simple as possible
 		private void validateValues()
 		{
 			bool gameExists = false;
-			bool serverExists = false;
-			bool backendUrlMatch = false;
 			bool profileExists = false;
 
 			// game
-			if (File.Exists(Path.Combine(gamePathTextBox.Text, "EscapeFromTarkov.exe"))
-			&& File.Exists(Path.Combine(gamePathTextBox.Text, "client.config.json")))
+			if ( File.Exists(Path.Combine(gamePathTextBox.Text, "EscapeFromTarkov.exe")) )
 			{
-				gameExists = true;
-				gamePathTextBox.ForeColor = Color.White;
-				Globals.gameFolder = gamePathTextBox.Text;
+				if( File.Exists(Path.Combine(gamePathTextBox.Text, "client.config.json")) == false )
+				{
+					MessageBox.Show("gameFolder has been found but Client.config.json is missing");
+					backendUrlLabel.Text = "Backend URL : ?";
+				}
+				else
+				{
+					gameExists = true;
+					gamePathTextBox.ForeColor = Color.White;
+					Globals.gameFolder = gamePathTextBox.Text;
+					Properties.Settings.Default.gameFolder = Globals.gameFolder;
+					Properties.Settings.Default.Save();
 
-				string json = File.ReadAllText(Path.Combine(Globals.gameFolder, "client.config.json"));
+					string json = File.ReadAllText(Path.Combine(Globals.gameFolder, "client.config.json"));
 
-				Globals.clientConfig = JsonConvert.DeserializeObject<ClientConfig>(json);
+					Globals.clientConfig = JsonConvert.DeserializeObject<ClientConfig>(json);
+					backendUrlLabel.Text = "Backend URL : " + Globals.clientConfig.BackendUrl;
+				}
 			}
 			else
 			{
 				gamePathTextBox.ForeColor = Color.Red;
-			}
-
-			// server
-			if (File.Exists(Path.Combine(serverPathTextBox.Text, "EmuTarkov-Server.exe"))
-			&& File.Exists(Path.Combine(serverPathTextBox.Text, @"appdata\server.config.json"))
-			)
-			{
-				serverExists = true;
-				serverPathTextBox.ForeColor = Color.White;
-				Globals.serverFolder = serverPathTextBox.Text;
-
-				string json = File.ReadAllText(Path.Combine(Globals.serverFolder, @"appdata\server.config.json"));
-
-				Globals.serverConfig = JsonConvert.DeserializeObject<ServerConfig>(json);
-				Globals.profilesFolder = Path.Combine(Globals.serverFolder, @"appdata\profiles");
-				LoadProfiles();
-			}
-			else
-			{
-				if (launcherConfig.launchServer)
-				{
-					serverPathTextBox.ForeColor = Color.Red;
-				}
-				else
-				{
-					serverExists = true;
-				}
-			}
-
-			if (Globals.useServerPath)
-			{
-				serverPathTextBox.Text = Globals.serverFolder;
-				serverPathTextBox.Enabled = false;
-			}
-
-			// backend url
-			if (Globals.clientConfig != null
-			&& Globals.serverConfig != null
-			&& Globals.clientConfig.BackendUrl == Globals.serverConfig.server.backendUrl)
-			{
-				backendUrlMatch = true;
-				backendUrlTextBox.Text = Globals.serverConfig.server.backendUrl;
-				backendUrlTextBox.ForeColor = Color.White;
-			}
-			else
-			{
-				backendUrlTextBox.ForeColor = Color.Red;
+				backendUrlLabel.Text = "Backend URL : ?";
 			}
 
 			// profile
@@ -251,10 +99,9 @@ namespace EFT_Launcher_12
 			}
 			
 			// start button
-			if (gameExists && serverExists && backendUrlMatch && profileExists)
+			if (gameExists && profileExists)
 			{
 				startButton.Enabled = true;
-				SaveLauncherSettings();
 			}
 			else
 			{
@@ -262,12 +109,8 @@ namespace EFT_Launcher_12
 			}
 		}
 
-		private void gamePathTextBox_TextChanged(object sender, EventArgs e)
-		{
-			validateValues();
-		}
 
-		private void serverPathTextBox_TextChanged(object sender, EventArgs e)
+		private void gamePathTextBox_TextChanged(object sender, EventArgs e)
 		{
 			validateValues();
 		}
@@ -317,8 +160,7 @@ namespace EFT_Launcher_12
 			if (Globals.launchServer)
 			{
 				// no need for this.member, we're accessing members inside the class
-				Height = 377;
-				this.background_panel.Height = 377;
+				this.Height = 377;
 				LaunchServer();
 			}
 
@@ -422,8 +264,7 @@ namespace EFT_Launcher_12
 			}
 			else
 			{
-				Height = 162;
-				this.background_panel.Height = 162;
+				this.Height = 162;
 				serverOutputRichBox.Text = "";
 			}
 		}
@@ -451,14 +292,5 @@ namespace EFT_Launcher_12
 			this.toggle = true;
 			this.timestamp = 132178097635361483;
 		}
-	}
-
-	internal class LauncherConfig
-	{
-		public string gamePath;
-		public string serverPath;
-		public string backendUrl;
-		public bool launchServer;
-		public bool useServerPath;
 	}
 }

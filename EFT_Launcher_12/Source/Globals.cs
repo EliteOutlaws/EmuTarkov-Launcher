@@ -5,7 +5,6 @@ namespace EFT_Launcher_12
 {
 	public class Globals
 	{
-		public static string launcherFolder;
 		public static string gameFolder;
 		public static string serverFolder;
 		public static string profilesFolder;
@@ -13,19 +12,19 @@ namespace EFT_Launcher_12
 		public static bool launchServer;
 		public static bool useServerPath;
 		public static ClientConfig clientConfig;
-		public static ServerConfig serverConfig;
 		
 		static Globals()
 		{
-			launcherFolder = Environment.CurrentDirectory;
-			gameFolder = "";
-			serverFolder = "";
-			profilesFolder = "";
-			version = "EmuTarkov Launcher 0.3.0-beta";
+			serverFolder = Environment.CurrentDirectory;
+			profilesFolder = Path.Combine(Environment.CurrentDirectory, "appdata/profiles");
+
+			//serverFolder = "Y:/tarkov/EmuTarkov Server dev";
+			//profilesFolder = "Y:/tarkov/EmuTarkov Server dev/appdata/profiles";
+
+			gameFolder = Properties.Settings.Default.gameFolder;
+			version = "EmuTarkov Launcher 12";
 			launchServer = true;
-			useServerPath = true;
 			clientConfig = null;
-			serverConfig = null;
 		}
 	}
 }
